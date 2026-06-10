@@ -17,7 +17,7 @@ function parseCliArgs(): CliArgs {
     .requiredOption('--exec <command>', 'Command to execute (repeatable, run in parallel)', collect, [])
     .option('--exec-timeout <seconds>', 'Timeout per command in seconds', '300')
     .option('--files-separator <sep>', 'Separator used in {{ON_CHANGES_RUN_*}} template vars', '\n')
-    .option('--state-file <path>', 'Path to the state file (relative to git root)', '.claude/delta-gate.state.local.json')
+    .option('--state-file <path>', 'Path to the state file (relative to git root)', '.claude/delta-gate.state.local.worktree-specific.json')
     .parse(process.argv);
 
   const opts = program.opts<{

@@ -59,7 +59,7 @@ Crucially, these checks are **scoped to what actually changed**. If Claude only 
 4. If any files changed between the two runs, it executes the specified commands in parallel.
 5. On the **first run** (no previous state), all matching diff files are treated as changed and commands are executed immediately.
 
-State is persisted in `<git-root>/.claude/delta-gate.state.local.json`.
+State is persisted in `<git-root>/.claude/delta-gate.state.local.worktree-specific.json`.
 
 ## Internals
 
@@ -92,6 +92,8 @@ The state file is a JSON object keyed by glob pattern. For each pattern, it stor
 ```
 
 Multiple glob patterns can coexist in the same state file, each with their own independent snapshot.
+
+> **Note:** the default state file is named `delta-gate.state.local.worktree-specific.json` on purpose. It is a *local* file (hence `.local`, gitignored), but it is also **worktree-specific** and must not be symlinked/centralized across worktrees. Some tools (e.g. Conductor) symlink every `.claude/*local*` file to share config across worktrees — the `worktree-specific` discriminant signals that this particular file should be excluded from such centralization.
 
 ### Change detection between two executions
 

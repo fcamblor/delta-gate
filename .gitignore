@@ -3,7 +3,8 @@
 .vscode/
 .idea/
 *~
-*.local.json
+*.local.*
+*.local
 
 # Node/npm (if skills include Node-based scripts)
 node_modules/

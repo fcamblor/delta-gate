@@ -26,7 +26,7 @@ export interface WatcherResult {
   failures: Array<{ command: string; exitCode: number; stdout: string; stderr: string }>;
 }
 
-const DEFAULT_STATE_FILE = '.claude/delta-gate.state.local.json';
+const DEFAULT_STATE_FILE = '.claude/delta-gate.state.local.worktree-specific.json';
 const DEFAULT_EXEC_TIMEOUT = 300;
 const DEFAULT_FILES_SEPARATOR = '\n';
 
