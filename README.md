@@ -51,6 +51,15 @@ There is no enforcement mechanism - only a hint that may or may not be followed.
 
 Crucially, these checks are **scoped to what actually changed**. If Claude only touched frontend files, there is no reason to rebuild the backend. Each check is tied to a glob pattern and runs only when matching files have changed since the last execution. This keeps hooks fast and avoids triggering unrelated parts of the build.
 
+### ⚠️ Anti-pattern: don't run quality gates on `PostToolUse` (`Edit` / `Write`)
+
+It is tempting to hook lint / typecheck / tests on `PostToolUse` with an `Edit|Write|MultiEdit` matcher, so that every file modification is checked right away. **Don't.** This hook is far too granular:
+
+- **Transiently inconsistent state → false failures.** A real change usually spans several files (renaming a function and updating its callers, adding a field and its usages, etc.). After the *first* edit, the codebase is half-migrated: compilation and tests fail simply because the model hasn't finished yet. These errors are noise, but they get fed back to the model, which may start "fixing" problems that would have disappeared on their own, derailing its plan.
+- **Way too many executions.** A single task can easily trigger dozens of edits. Re-running a build, a linter or a test suite after each of them wastes a huge amount of time and resources, and slows the whole session down.
+
+The right granularity is **the end of a unit of work**: `Stop` (the main agent hands back control) and `SubagentStop` (a subagent finishes its task). At that point, the model considers its changes complete and consistent, so a failure is a real failure worth reporting back. `delta-gate` then makes sure that only the checks relevant to what actually changed are executed.
+
 ## How it works
 
 1. On each run, `delta-gate` snapshots the SHA-256 hashes of files that are in the git diff (unstaged + staged) and match the provided glob pattern.
